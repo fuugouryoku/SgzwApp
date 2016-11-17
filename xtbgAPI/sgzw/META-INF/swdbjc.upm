@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<module name = "swdbjc">
+	<public>
+		<component accessProtected="false"  name="swuploadfile" remote="true" singleton="true" tx="NONE">
+            <implementation>nc.sgzw.uap.org.server.SWUploadServer</implementation>
+        </component> 
+        <component accessProtected="false"  name="swdeleteloadfile" remote="true" singleton="true" tx="NONE">
+            <implementation>nc.sgzw.uap.org.server.SWDeleteFileServer</implementation>
+        </component> 
+        <component accessProtected="false"  name="swcreate" remote="true" singleton="true" tx="NONE">
+            <implementation>nc.sgzw.uap.org.server.SWCreateSWServer</implementation>
+        </component> 
+        <component accessProtected="false"  name="swdownloadfile" remote="true" singleton="true" tx="NONE">
+            <implementation>nc.sgzw.uap.org.server.SWDownFileServer</implementation>
+        </component> 
+        <component accessProtected="false"  name="swsubmitosinfo" remote="true" singleton="true" tx="NONE">
+            <implementation>nc.sgzw.uap.org.server.SWOaodReceiptregdocServer</implementation>
+        </component>
+	</public>
+		<private>
+	</private>
+</module>

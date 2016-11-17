@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Manifest>
+  <BusinessComponet name="sgzw" dispname="sgzw">
+    <public/>
+    <client/>
+    <private/>
+    <test/>
+    <resource/>
+  </BusinessComponet>
+</Manifest>

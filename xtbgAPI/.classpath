@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="sgzw/src/portalspec"/>
+	<classpathentry kind="src" output="sgzw/classes" path="sgzw/src/public"/>
+	<classpathentry kind="src" output="sgzw/classes" path="sgzw/src/client"/>
+	<classpathentry kind="src" output="sgzw/classes" path="sgzw/src/private"/>
+	<classpathentry kind="src" output="sgzw/classes" path="sgzw/resources"/>
+	<classpathentry kind="src" output="sgzw/classes" path="sgzw/src/test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="nc.uap.lfw.library.container/Ant_Library"/>
+	<classpathentry kind="con" path="nc.uap.lfw.library.container/Product_Common_Library"/>
+	<classpathentry kind="con" path="nc.uap.lfw.library.container/Product_LIB_Library"/>
+	<classpathentry kind="con" path="nc.uap.lfw.library.container/Middleware_Library"/>
+	<classpathentry kind="con" path="nc.uap.lfw.library.container/Framework_Library"/>
+	<classpathentry kind="con" path="nc.uap.lfw.library.container/Module_Public_Library"/>
+	<classpathentry kind="con" path="nc.uap.lfw.library.container/Module_Client_Library"/>
+	<classpathentry kind="con" path="nc.uap.lfw.library.container/Module_Private_Library"/>
+	<classpathentry kind="con" path="nc.uap.lfw.library.container/Module_Lang_Library"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.5.2.jar"/>
+	<classpathentry kind="lib" path="lib/fastjson-1.2.2.jar"/>
+	<classpathentry kind="lib" path="lib/httpcore-4.4.4.jar"/>
+	<classpathentry kind="lib" path="lib/httpmime-4.5.2.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

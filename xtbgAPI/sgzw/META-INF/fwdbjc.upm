@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<module name = "fwdbjc">
+	<public>
+	    <component accessProtected="false"  name="fwuploadfile" remote="true" singleton="true" tx="NONE">
+            <implementation>nc.sgzw.uap.org.server.FWUploadServer</implementation>
+        </component>  
+		<component accessProtected="false"  name="fwgetooinfo" remote="true" singleton="true" tx="NONE">
+            <implementation >nc.sgzw.uap.org.server.FWOrgOrgsServer</implementation>
+        </component> 
+        <component accessProtected="false"  name="fwsubmitosinfo" remote="true" singleton="true" tx="NONE">
+            <implementation>nc.sgzw.uap.org.server.FWOaodSenddocServer</implementation>
+        </component>
+        <component accessProtected="false"  name="fwcreate" remote="true" singleton="true" tx="NONE">
+            <implementation>nc.sgzw.uap.org.server.FWCreateFWServer</implementation>
+        </component> 
+        <component accessProtected="false"  name="fwdeleteloadfile" remote="true" singleton="true" tx="NONE">
+            <implementation>nc.sgzw.uap.org.server.FWDeleteFileServer</implementation>
+        </component> 
+        <component accessProtected="false"  name="getuserinfo" remote="true" singleton="true" tx="NONE">
+            <implementation>nc.sgzw.uap.org.server.LoginServer</implementation>
+        </component> 
+	</public>
+	<private>
+	</private>
+</module>

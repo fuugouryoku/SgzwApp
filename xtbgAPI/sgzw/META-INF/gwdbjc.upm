@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<module name = "gwdbjc">
+	<public>
+		<component accessProtected="false"  name="gwcreate" remote="true" singleton="true" tx="NONE">
+            <implementation>nc.sgzw.uap.org.server.GWCreateGWServer</implementation>
+        </component> 
+        <component accessProtected="false"  name="gwdownfile" remote="true" singleton="true" tx="NONE">
+            <implementation>nc.sgzw.uap.org.server.GWDownLoadServer</implementation>
+        </component> 
+	</public>
+	<private>
+	</private>
+</module>

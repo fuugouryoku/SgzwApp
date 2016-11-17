@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<web-app>
+	<context-param>
+		<param-name>ctxPath</param-name>
+		<param-value>/sgzw</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>modules</param-name>
+		<param-value>sgzw</param-value>
+	</context-param>
+</web-app>
