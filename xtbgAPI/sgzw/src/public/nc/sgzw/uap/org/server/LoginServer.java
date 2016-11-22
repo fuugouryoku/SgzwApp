@@ -1,11 +1,8 @@
 package nc.sgzw.uap.org.server;
 
 
-import java.io.IOException;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -13,26 +10,25 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.http.HttpStatus;
-
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-
 import nc.bs.framework.adaptor.IHttpServletAdaptor;
 import nc.bs.framework.common.NCLocator;
 import nc.bs.framework.server.ISecurityTokenCallback;
 import nc.sgzw.uap.org.dto.UserInfo;
+import nc.sgzw.uap.properties.NCInfoGet;
 
 public class LoginServer implements IHttpServletAdaptor {
 
-	// 开放平台地址
-	private static final String HOST = "https://openapi.upesn.com/";
-
-	// 对应企业空间轻应用CropSecret, 实际要对应修改
-	private static final String secret = "9b3e69319d232124";
-
-	// 对应企业空间轻应用CropId, 实际要对应修改
-	private static final String appid 
-	= "4dd8576115974b1d48a89de72623e814937dc5373133e23a1fb13750bf20";
+//	// 开放平台地址
+//	private static final String HOST = "https://openapi.upesn.com/";
+//
+//	// 对应企业空间轻应用CropSecret, 实际要对应修改
+//	private static final String secret = "7913057ff45b13bb";
+//
+//	// 对应企业空间轻应用CropId, 实际要对应修改
+//	private static final String appid 
+//	= "74d55d85d1b3c47caa8e383b5208701d115f6a5f8a963ed3ceec438b2b12";
 
 
 	@Override
@@ -49,9 +45,10 @@ public class LoginServer implements IHttpServletAdaptor {
 		UserInfo userInfoSession = new UserInfo();
 		String code = request.getParameter("code");
 		try {
-			String accessToken = getAccessToken(secret, appid);
+			String accessToken = getAccessToken(NCInfoGet.getSecret(), NCInfoGet.getAppid());
+			if (accessToken != null && !accessToken.equals("")){
 			CloseableHttpClient httpclient = HttpClients.createDefault();
-			String certifiedUrl = HOST + "certified/userInfo/" + code + "/?access_token=" + accessToken;
+			String certifiedUrl = NCInfoGet.getHost() + "certified/userInfo/" + code + "/?access_token=" + accessToken;
 			HttpGet httpget2 = new HttpGet(certifiedUrl);
 			CloseableHttpResponse rsp2 = httpclient.execute(httpget2);
 			if (rsp2.getStatusLine().getStatusCode() == HttpStatus.OK.value()) {
@@ -64,16 +61,16 @@ public class LoginServer implements IHttpServletAdaptor {
 					request.setAttribute("userinfo", userInfoSession);
 				}	
 			}
+			response.getWriter().write(toJson(userInfoSession).toString());
+		}else{
+			response.getWriter().write("fail：AccessToken获取失败");
+		}
 		} catch (Exception e) {
 			// TODO 自动生成的 catch 块
 			e.printStackTrace();
 		}
-		try {
-			response.getWriter().write(toJson(userInfoSession).toString());
-		} catch (IOException e) {
-			// TODO 自动生成的 catch 块
-			e.printStackTrace();
-		}
+		
+	
 	}
 	/**
 	 * 获取接口调用令牌
@@ -86,7 +83,7 @@ public class LoginServer implements IHttpServletAdaptor {
 		String accessToken = getCacheAccessToken();
 		if (accessToken == "" ||accessToken == null) {
 			CloseableHttpClient httpclient = HttpClients.createDefault();
-			String tokenUrl = HOST + "token/?appid=" + appid + "&secret=" + secret;
+			String tokenUrl = NCInfoGet.getHost() + "token/?appid=" + appid + "&secret=" + secret;
 			HttpGet httpget = new HttpGet(tokenUrl);
 			CloseableHttpResponse rsp = httpclient.execute(httpget);
 			if (rsp.getStatusLine().getStatusCode() == HttpStatus.OK.value()) {
