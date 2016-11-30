@@ -5,7 +5,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -22,8 +25,9 @@ import nc.bs.framework.server.ISecurityTokenCallback;
 import nc.bs.oa.oaco.basecomp.associateform.AssociateFormUtil;
 import nc.sgzw.uap.org.dto.SWUserInfoDto;
 import nc.sgzw.uap.org.exception.ServiceException;
+import nc.sgzw.uap.org.util.FileKit;
 import nc.sgzw.uap.org.util.IdGenertor;
-import nc.sgzw.uap.properties.NCSQLInfoGet;
+import nc.sgzw.uap.properties.StaticWordProperties;
 import nc.uap.wfm.constant.WfmConstants;
 import nc.uap.wfm.exe.WfmCoreCmd;
 import nc.uap.wfm.exe.WfmParams;
@@ -36,6 +40,8 @@ import net.sf.json.JSONObject;
 
 public class SWOaodReceiptregdocServer implements IHttpServletAdaptor {
 	private ServiceException exception = null;
+	List<String> log=new ArrayList<String>();
+	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd- HH:mm:ss");
 	@Override
 	public void doAction(HttpServletRequest request, HttpServletResponse response)
 			throws UnsupportedEncodingException {
@@ -55,7 +61,8 @@ public class SWOaodReceiptregdocServer implements IHttpServletAdaptor {
 		response.setContentType("text/html;charset=utf-8");
 		response.setHeader("Access-Control-Allow-Headers", "Content-Type");
 		request.setCharacterEncoding("utf-8");
-
+		log.add(format.format(new Date())+"开始调用nc.sgzw.uap.org.server.SWOaodReceiptregdocServer提交收文单");
+		
 		String  datastring = "";
 		//判断是否为post请求
 		if ( request.getMethod().equals("POST") ) {
@@ -68,10 +75,12 @@ public class SWOaodReceiptregdocServer implements IHttpServletAdaptor {
 				e2.printStackTrace();
 				exception.setCode(ServiceException.FAIL_CODE);
 				exception.setDesc(ServiceException.FAIL_DESC_INFO_ANALYSIS);
+				log.add("数据解析失败");
 			}
 			if (object == null){
 				exception.setCode(ServiceException.FAIL_CODE);
 				exception.setDesc(ServiceException.FAIL_DESC_INFO_ANALYSIS);
+				log.add("数据解析失败");
 			}else {
 				//人员信息获得
 				SWUserInfoDto userinfo = new SWUserInfoDto();
@@ -87,8 +96,8 @@ public class SWOaodReceiptregdocServer implements IHttpServletAdaptor {
 					vo.setPk_file(object.optString("pk_file")!=null ?object.optString("pk_file"):"");
 					if(vo.getPk_file().equals("")){
 						SWUploadServer upload = new SWUploadServer();
-						File folder =new File(NCSQLInfoGet.getFilepath());
-						File file =new File(NCSQLInfoGet.getFilepath()+"/reg.docx");
+						File folder =new File(StaticWordProperties.filepath);
+						File file =new File(StaticWordProperties.filepath+"/reg.docx");
 					    if  (!folder .exists()  && !folder.isDirectory()) { 
 					    	folder.mkdir();
 					    }
@@ -100,10 +109,14 @@ public class SWOaodReceiptregdocServer implements IHttpServletAdaptor {
 									e.printStackTrace();
 								}   
 					    }
-					    FileItem item = createFileItem(NCSQLInfoGet.getFilepath()+"/reg.docx");
+					    FileItem item = createFileItem(StaticWordProperties.filepath+"/reg.docx");
+					    log.add("正文附件上传开始");
 					    String sdpath = upload.processUploadField(item, fileid,userinfo.getCuserid());
 					    if (!sdpath.equals("")&& sdpath!=null){
 					    	vo.setPk_file(sdpath);
+					    	log.add("正文附件上传成功");
+					    }else{
+					    	log.add("正文附件上传失败");
 					    }
 					}
 					//主键
@@ -167,18 +180,23 @@ public class SWOaodReceiptregdocServer implements IHttpServletAdaptor {
 						dispatchflwtype = swlx.optString("swlx_dispatchflwtype");
 						pk_prodef = swlx.optString("swlx_pk_prodef");
 						vo.setDoctype(swlx.optString("swlx_pk_type")!=null ?swlx.optString("swlx_pk_type"):"");
+					}else{
+						log.add("没有收文类型");
 					}
 				  //发送流程
+					log.add("开始插入流程");
 					dataProcess(vo,userinfo,dispatchflwtype,pk_prodef,attachBillitem);	
 				
 				}else {
 						exception.setCode(ServiceException.FAIL_CODE);
 						exception.setDesc(ServiceException.FAIL_DESC+"人员信息获取失败");
+						log.add("人员信息获取失败");
 					}
 			}
 		}else {
 			exception.setCode(ServiceException.FAIL_CODE);
 			exception.setDesc(ServiceException.FAIL_DESC_CONN_TYPE);
+			log.add(request.getMethod()+"请求无法实现，请采用POST请求");
 		}
 		String result = toJson().toString();
 
@@ -186,7 +204,10 @@ public class SWOaodReceiptregdocServer implements IHttpServletAdaptor {
 			response.getWriter().write(result);
 		} catch (IOException e) {
 			e.printStackTrace();
+			log.add("response返回信息失败");
 		}
+		log.add("提交收文单接口调用完成");
+		FileKit.addTask(log, "", "");
 	}
 	public JSONObject toJson() {
 		JSONObject joObj = new JSONObject();
@@ -218,20 +239,22 @@ public class SWOaodReceiptregdocServer implements IHttpServletAdaptor {
 
 		try {
 			new WfmCoreCmd(wfmParams).execute();
+			log.add("流程插入成功");
 		}catch (Exception e){
 			e.printStackTrace();
 			exception.setCode(ServiceException.FAIL_CODE);
 			if (e.getMessage() == null||e.getMessage().equals("")){
 				exception.setDesc(ServiceException.FAIL_DESC+":流程插入失败");
+				log.add("流程插入失败");
 			}else{
 				exception.setDesc(e.getMessage());
+				log.add("流程插入失败:"+e.getMessage());
 			}
 		}
-		System.out.println("end");
 	}
 	
 	private FileItem createFileItem(String filePath)
-    {
+    {    log.add("生成默认正文附件reg.docx");
         FileItemFactory factory = new DiskFileItemFactory(16, null);
         String textFieldName = "reg";
         int num = filePath.lastIndexOf(".");
@@ -252,10 +275,12 @@ public class SWOaodReceiptregdocServer implements IHttpServletAdaptor {
             }
             os.close();
             fis.close();
+            log.add("正文附件创建 成功");
         }
         catch (IOException e)
         {
         	e.printStackTrace();
+        	log.add("正文附件创建失败");
         }
 
         return item;

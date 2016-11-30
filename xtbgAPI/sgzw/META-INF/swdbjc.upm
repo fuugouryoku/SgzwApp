@@ -10,9 +10,6 @@
         <component accessProtected="false"  name="swcreate" remote="true" singleton="true" tx="NONE">
             <implementation>nc.sgzw.uap.org.server.SWCreateSWServer</implementation>
         </component> 
-        <component accessProtected="false"  name="swdownloadfile" remote="true" singleton="true" tx="NONE">
-            <implementation>nc.sgzw.uap.org.server.SWDownFileServer</implementation>
-        </component> 
         <component accessProtected="false"  name="swsubmitosinfo" remote="true" singleton="true" tx="NONE">
             <implementation>nc.sgzw.uap.org.server.SWOaodReceiptregdocServer</implementation>
         </component>

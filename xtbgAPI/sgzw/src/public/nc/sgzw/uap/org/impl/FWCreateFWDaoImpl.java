@@ -17,7 +17,7 @@ import nc.sgzw.uap.org.dto.FWCreateFW_OaDefdocDto;
 import nc.sgzw.uap.org.dto.FWCreateFW_ZTCDto;
 import nc.sgzw.uap.org.dto.FWUserInfoDto;
 import nc.sgzw.uap.org.exception.ServiceException;
-import nc.sgzw.uap.properties.NCInfoGet;
+import nc.sgzw.uap.properties.StaticWordProperties;
 import nc.vo.arap.uforeport.SqlBuffer;
 
 public class FWCreateFWDaoImpl{
@@ -33,14 +33,14 @@ public class FWCreateFWDaoImpl{
 	public FWUserInfoDto getCuserid(String userid) {
 		FWUserInfoDto userinfo = new FWUserInfoDto();
 		SqlBuffer sql = new SqlBuffer();
-		sql.append("select cp.cuserid ,bp.name,bp.pk_group,bp.pk_org from cp_user cp  ");
+		sql.append("select cp.cuserid ,bp.name,bp.pk_group,bp.pk_org,cp.user_code from cp_user cp  ");
 		sql.append("left join bd_psndoc bp on bp.pk_psndoc = cp.pk_base_doc  ");
 		sql.append("where cp.user_code = ? ");
 		SQLParameter pstam=new SQLParameter();
 		try {
 			pstam.addParam( userid);
 			userinfo = (FWUserInfoDto)getBaseDAO().executeQuery(sql.toString(), pstam, new  BeanProcessor(FWUserInfoDto.class));
-			userinfo.setUser_code(userid);
+
 		} catch (DAOException e) {
 			e.printStackTrace();
 			exception.setCode(ServiceException.FAIL_CODE);
@@ -66,66 +66,72 @@ public class FWCreateFWDaoImpl{
 		exception.setDesc(ServiceException.SUCCESS_DESC);
 		FWCreateFWDto createFWdto = new FWCreateFWDto();
 		FWUserInfoDto userinfo = getCuserid(userid);
-		createFWdto.setUserInfo(userinfo);
-		ArrayList<FWCreateFW_FWLXDto> fwlxlist = getFWLX(userinfo.getCuserid());
-		if (ServiceException.SUCCESS_CODE == exception.getCode()){  	
-			createFWdto.setFWNXData(fwlxlist);
-		}
-				ArrayList<FWCreateFW_FWZZDto> fwzzlist = getFWZZ(userid);
-				if (ServiceException.SUCCESS_CODE == exception.getCode()){  	
-					createFWdto.setFwzzData(fwzzlist);
-				}
-		SqlBuffer sql = new SqlBuffer();
-		sql.append("select name,pk_defdoclist,pk_defdoc from oa_defdoc where pk_defdoclist in(?,?,?) ");
-		SQLParameter pstam=new SQLParameter();
-		try {
-			pstam.addParam( NCInfoGet.getBmdj());
-			pstam.addParam( NCInfoGet.getJjcd());
-			pstam.addParam( NCInfoGet.getZtc());
-			ArrayList<FWCreateFW_OaDefdocDto>  list = new ArrayList<FWCreateFW_OaDefdocDto>() ;
-			ArrayList<FWCreateFW_BMDJDto> BMDJList = new ArrayList<FWCreateFW_BMDJDto>();
-			ArrayList<FWCreateFW_MJDto> MJList = new ArrayList<FWCreateFW_MJDto>();
-			ArrayList<FWCreateFW_ZTCDto> ZTCList = new ArrayList<FWCreateFW_ZTCDto>();
-			list= (ArrayList<FWCreateFW_OaDefdocDto>) getBaseDAO().executeQuery(sql.toString(), pstam, new BeanListProcessor(FWCreateFW_OaDefdocDto.class));
-			for (int i = 0;i <list.size();i++){
-				FWCreateFW_OaDefdocDto rs = list.get(i);
-				String  pk_defdoclist = rs.getPk_defdoclist()!=null ? rs.getPk_defdoclist():"";
-				String  name = rs.getName()!=null ? rs.getName():"";
-				String  pk_defdoc = rs.getPk_defdoc()!=null ? rs.getPk_defdoc():"";
-
-				if (pk_defdoclist.equals(NCInfoGet.getBmdj())) {
-					FWCreateFW_BMDJDto createFW_BMDJdto = new FWCreateFW_BMDJDto();
-					createFW_BMDJdto.setBmdj_name(name);
-					createFW_BMDJdto.setBmdj_pk_defdoc(pk_defdoc);
-					BMDJList.add(createFW_BMDJdto);
-				} else if(pk_defdoclist.equals(NCInfoGet.getJjcd())) {
-					FWCreateFW_MJDto createFW_MJdto = new FWCreateFW_MJDto();
-					createFW_MJdto.setMj_name(name);
-					createFW_MJdto.setMj_pk_defdoc(pk_defdoc);
-					MJList.add(createFW_MJdto);
-				}else if (pk_defdoclist.equals(NCInfoGet.getZtc())) {
-					FWCreateFW_ZTCDto createFW_ZTCdto = new  FWCreateFW_ZTCDto();
-					createFW_ZTCdto.setZtc_name(name);
-					createFW_ZTCdto.setZtc_pk_defdoc(pk_defdoc);
-					ZTCList.add(createFW_ZTCdto);
-				}
+		if (userinfo!=null&&userinfo.getCuserid()!=null){
+			ArrayList<FWCreateFW_FWLXDto> fwlxlist = new ArrayList<FWCreateFW_FWLXDto> ();
+			createFWdto.setUserInfo(userinfo);
+			fwlxlist = getFWLX(userinfo.getCuserid());
+			if (ServiceException.SUCCESS_CODE == exception.getCode()){  	
+				createFWdto.setFWNXData(fwlxlist);
 			}
-			createFWdto.setBmdjData(BMDJList);
-			createFWdto.setJjcdData(MJList);
-			createFWdto.setZtcData(ZTCList);
-		} catch (DAOException e) {
-			e.printStackTrace();
+			ArrayList<FWCreateFW_FWZZDto> fwzzlist = getFWZZ(userid);
+			if (ServiceException.SUCCESS_CODE == exception.getCode()){  	
+				createFWdto.setFwzzData(fwzzlist);
+			}
+			SqlBuffer sql = new SqlBuffer();
+			sql.append("select name,pk_defdoclist,pk_defdoc from oa_defdoc where pk_defdoclist in(?,?,?) ");
+			SQLParameter pstam=new SQLParameter();
+			try {
+				pstam.addParam( StaticWordProperties.bmdj);
+				pstam.addParam( StaticWordProperties.jjcd);
+				pstam.addParam( StaticWordProperties.ztc);
+				ArrayList<FWCreateFW_OaDefdocDto>  list = new ArrayList<FWCreateFW_OaDefdocDto>() ;
+				ArrayList<FWCreateFW_BMDJDto> BMDJList = new ArrayList<FWCreateFW_BMDJDto>();
+				ArrayList<FWCreateFW_MJDto> MJList = new ArrayList<FWCreateFW_MJDto>();
+				ArrayList<FWCreateFW_ZTCDto> ZTCList = new ArrayList<FWCreateFW_ZTCDto>();
+				list= (ArrayList<FWCreateFW_OaDefdocDto>) getBaseDAO().executeQuery(sql.toString(), pstam, new BeanListProcessor(FWCreateFW_OaDefdocDto.class));
+				for (int i = 0;i <list.size();i++){
+					FWCreateFW_OaDefdocDto rs = list.get(i);
+					String  pk_defdoclist = rs.getPk_defdoclist()!=null ? rs.getPk_defdoclist():"";
+					String  name = rs.getName()!=null ? rs.getName():"";
+					String  pk_defdoc = rs.getPk_defdoc()!=null ? rs.getPk_defdoc():"";
+
+					if (pk_defdoclist.equals(StaticWordProperties.bmdj)) {
+						FWCreateFW_BMDJDto createFW_BMDJdto = new FWCreateFW_BMDJDto();
+						createFW_BMDJdto.setBmdj_name(name);
+						createFW_BMDJdto.setBmdj_pk_defdoc(pk_defdoc);
+						BMDJList.add(createFW_BMDJdto);
+					} else if(pk_defdoclist.equals(StaticWordProperties.jjcd)) {
+						FWCreateFW_MJDto createFW_MJdto = new FWCreateFW_MJDto();
+						createFW_MJdto.setMj_name(name);
+						createFW_MJdto.setMj_pk_defdoc(pk_defdoc);
+						MJList.add(createFW_MJdto);
+					}else if (pk_defdoclist.equals(StaticWordProperties.ztc)) {
+						FWCreateFW_ZTCDto createFW_ZTCdto = new  FWCreateFW_ZTCDto();
+						createFW_ZTCdto.setZtc_name(name);
+						createFW_ZTCdto.setZtc_pk_defdoc(pk_defdoc);
+						ZTCList.add(createFW_ZTCdto);
+					}
+				}
+				createFWdto.setBmdjData(BMDJList);
+				createFWdto.setJjcdData(MJList);
+				createFWdto.setZtcData(ZTCList);
+			} catch (DAOException e) {
+				e.printStackTrace();
+				exception.setCode(ServiceException.FAIL_CODE);
+				exception.setDesc(ServiceException.FAIL_DESC+":"+e.getMessage());
+				System.out.println("******************"+e.toString()+"******************"+this.getClass().getName());
+			} 
+		}else{
 			exception.setCode(ServiceException.FAIL_CODE);
-			exception.setDesc(ServiceException.FAIL_DESC+":"+e.getMessage());
-			System.out.println("******************"+e.toString()+"******************"+this.getClass().getName());
-		} 
+			exception.setDesc(ServiceException.FAIL_DESC_USER_FIND);
+		}
 		return createFWdto;
 	}
 
 	//来文类型
 	@SuppressWarnings("unchecked")
 	public ArrayList<FWCreateFW_FWLXDto> getFWLX(String cuserid) {
-		
+
 		ArrayList<FWCreateFW_FWLXDto> fwlxList = new ArrayList<FWCreateFW_FWLXDto>();
 		SqlBuffer sql = new SqlBuffer();
 		sql.append("select oo.name as fwlx_name ,oo.pk_type as fwlx_pk_type,oo.dispatchflwtype as fwlx_dispatchflwtype ,wp.pk_prodef as fwlx_pk_prodef from oaod_officialdoctype oo  ");

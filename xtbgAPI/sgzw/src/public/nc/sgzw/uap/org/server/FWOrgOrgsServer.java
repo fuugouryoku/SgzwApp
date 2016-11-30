@@ -18,10 +18,10 @@ import net.sf.json.JSONObject;
 
 public class FWOrgOrgsServer implements IHttpServletAdaptor {
 
-	public FWOrgDto getListData() {
+	public FWOrgDto getListData(String pk_org,String orglevel) {
 		FWOrgDto orgdto = new FWOrgDto();
 		FWOrgOrgsDaoImpl orgorgsdaoimpl = new FWOrgOrgsDaoImpl();
-		ArrayList<FWOrgOrgsDto> orgorgsList = orgorgsdaoimpl.getOrgOrgsData();
+		ArrayList<FWOrgOrgsDto> orgorgsList = orgorgsdaoimpl.getOrgOrgsData(pk_org,orglevel);
 		ServiceException  exception = orgorgsdaoimpl.exceptionInfo();
 		orgdto.setState(exception.getCode());
 		orgdto.setMessage(exception.getDesc());
@@ -54,8 +54,10 @@ public class FWOrgOrgsServer implements IHttpServletAdaptor {
 		response.setHeader("Access-Control-Allow-Methods", "POST, GET");
 		response.setHeader("Access-Control-Allow-Headers", "*, X-Requested-With,Authorization, X-Prototype-Version, X-CSRF-Token, Content-Type");
 		response.setContentType("text/html;charset=utf-8");
-		if ( request.getMethod().equals("POST") || request.getMethod().equals("GET") ) {
-			FWOrgDto orgdto = getListData();
+		if ( request.getMethod().equals("POST") ) {
+			String pk_org = request.getParameter("pk_org") != null ? request.getParameter("pk_org"):"";
+			String orglevel = request.getParameter("orglevel") != null ? request.getParameter("orglevel").trim():"";
+			FWOrgDto orgdto = getListData(pk_org,orglevel);
 			result = toJson(orgdto).toString();
 		}else {
 			FWOrgDto orgdto = new FWOrgDto();

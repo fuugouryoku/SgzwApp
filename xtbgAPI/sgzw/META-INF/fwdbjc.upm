@@ -1,6 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <module name = "fwdbjc">
 	<public>
+	    <component accessProtected="false"  name="getuserinfo" remote="true" singleton="true" tx="NONE">
+            <implementation>nc.sgzw.uap.org.server.GetuserinfoServer</implementation>
+        </component>
 	    <component accessProtected="false"  name="fwuploadfile" remote="true" singleton="true" tx="NONE">
             <implementation>nc.sgzw.uap.org.server.FWUploadServer</implementation>
         </component>  
@@ -16,9 +19,9 @@
         <component accessProtected="false"  name="fwdeleteloadfile" remote="true" singleton="true" tx="NONE">
             <implementation>nc.sgzw.uap.org.server.FWDeleteFileServer</implementation>
         </component> 
-        <component accessProtected="false"  name="getuserinfo" remote="true" singleton="true" tx="NONE">
-            <implementation>nc.sgzw.uap.org.server.LoginServer</implementation>
-        </component> 
+        <component accessProtected="false"  name="fwsearchooinfo" remote="true" singleton="true" tx="NONE">
+            <implementation>nc.sgzw.uap.org.server.FWSearchOrgOrgsServer</implementation>
+        </component>  
 	</public>
 	<private>
 	</private>

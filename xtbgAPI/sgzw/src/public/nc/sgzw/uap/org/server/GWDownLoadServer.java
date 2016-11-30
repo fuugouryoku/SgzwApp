@@ -25,7 +25,7 @@ public class GWDownLoadServer implements IHttpServletAdaptor {
 		String filePath = "";
 		OutputStream out = null;
 		if ("".equals(request.getParameter("filepath")) ||request.getParameter("filepath")==null) {
-			filePath = request.getQueryString();
+			filePath = request.getQueryString() != null ? request.getQueryString() :"";
 		}else {
 			filePath = request.getParameter("filepath");
 		}
@@ -42,6 +42,9 @@ public class GWDownLoadServer implements IHttpServletAdaptor {
 		} catch (UnsupportedEncodingException e) {
 			// TODO 自动生成的 catch 块
 			e.printStackTrace();
+		}
+		if (filePath == null){
+			filePath = "";
 		}
 		//获取文件信息
 		LfwFileVO filevo = null;

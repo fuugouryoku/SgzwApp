@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -17,8 +20,9 @@ import nc.bs.framework.server.ISecurityTokenCallback;
 import nc.bs.oa.oaco.basecomp.associateform.AssociateFormUtil;
 import nc.sgzw.uap.org.dto.FWUserInfoDto;
 import nc.sgzw.uap.org.exception.ServiceException;
+import nc.sgzw.uap.org.util.FileKit;
 import nc.sgzw.uap.org.util.IdGenertor;
-import nc.sgzw.uap.properties.NCSQLInfoGet;
+import nc.sgzw.uap.properties.StaticWordProperties;
 import nc.uap.wfm.constant.WfmConstants;
 import nc.uap.wfm.exe.WfmCoreCmd;
 import nc.uap.wfm.exe.WfmParams;
@@ -48,10 +52,12 @@ public class FWOaodSenddocServer implements IHttpServletAdaptor {
 		joObj.put("num", 1);
 		return joObj;
 	}
-
+	List<String> log=new ArrayList<String>();
+	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd- HH:mm:ss");
 	@Override
 	public void doAction(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
+	
 		//自动生成的方法存根
 		SendDocVO vo = null;
 		exception = new ServiceException();
@@ -65,6 +71,7 @@ public class FWOaodSenddocServer implements IHttpServletAdaptor {
 		response.setHeader("Access-Control-Allow-Origin", "*");
 		response.setContentType("text/html;charset=utf-8");
 		request.setCharacterEncoding("utf-8");
+		log.add(format.format(new Date())+"开始调用nc.sgzw.uap.org.server.FWOaodSenddocServer提交发文单");
 		String  datastring = "";
 		//判断是否为post请求
 		if ( request.getMethod().equals("POST") ) {
@@ -98,8 +105,8 @@ public class FWOaodSenddocServer implements IHttpServletAdaptor {
 					vo.setSdtext(object.optString("sdtext")!=null ?object.optString("sdtext"):"");
 					if(vo.getSdtext().equals("")){
 						FWUploadServer upload = new FWUploadServer();
-						File folder =new File(NCSQLInfoGet.getFilepath());
-						File file =new File(NCSQLInfoGet.getFilepath()+"/send.docx");
+						File folder =new File(StaticWordProperties.filepath);
+						File file =new File(StaticWordProperties.filepath+"/send.docx");
 					    if  (!folder .exists()  && !folder.isDirectory()) { 
 					    	folder.mkdir();
 					    }
@@ -111,10 +118,14 @@ public class FWOaodSenddocServer implements IHttpServletAdaptor {
 									e.printStackTrace();
 								}   
 					    }
-					    FileItem item = createFileItem(NCSQLInfoGet.getFilepath()+"/send.docx");
+					    FileItem item = createFileItem(StaticWordProperties.filepath+"/send.docx");
+					    log.add("上传默认正文附件");
 					    String sdpath = upload.processUploadField(item, fileid,userinfo.getCuserid());
 					    if (!sdpath.equals("")&& sdpath!=null){
 					    	vo.setSdtext(sdpath);
+					    	log.add("上传默认正文成功");
+					    }else{
+					    	log.add("上传默认正文附件失败");	
 					    }
 					}
 					//传入占位主键
@@ -156,6 +167,8 @@ public class FWOaodSenddocServer implements IHttpServletAdaptor {
 						dispatchflwtype = fwlx.optString("fwlx_dispatchflwtype");
 						pk_prodef = fwlx.optString("fwlx_pk_prodef");
 						vo.setSdtype(fwlx.optString("fwlx_pk_type")!=null ?fwlx.optString("fwlx_pk_type"):"");
+					}else{
+						log.add("没有发文类型");
 					}
 					//紧急程度
 					vo.setEmergency(object.optString("emergency")!=null ?object.optString("emergency"):"~");
@@ -202,6 +215,7 @@ public class FWOaodSenddocServer implements IHttpServletAdaptor {
 							e1.printStackTrace();
 							exception.setCode(ServiceException.FAIL_CODE);
 							exception.setDesc(ServiceException.FAIL_DESC+"主送解析失败");
+							log.add("主送解析失败");
 						}
 					}
 					if (annxscope != null && !annxscope.equals("")){
@@ -212,6 +226,7 @@ public class FWOaodSenddocServer implements IHttpServletAdaptor {
 							e1.printStackTrace();
 							exception.setCode(ServiceException.FAIL_CODE);
 							exception.setDesc(ServiceException.FAIL_DESC+"抄送解析失败");
+							log.add("抄送解析失败");
 						}
 					}
 					int arraycount = mainscopeList.length() + annxscopeList.length();
@@ -254,6 +269,7 @@ public class FWOaodSenddocServer implements IHttpServletAdaptor {
 							e.printStackTrace();
 							exception.setCode(ServiceException.FAIL_CODE);
 							exception.setDesc(ServiceException.FAIL_DESC+"主送分发失败");
+							log.add("主送分发失败");
 						}
 					}
 					//抄送
@@ -294,23 +310,29 @@ public class FWOaodSenddocServer implements IHttpServletAdaptor {
 						} catch (JSONException e) {
 							e.printStackTrace();
 							exception.setCode(ServiceException.FAIL_CODE);
-							exception.setDesc(ServiceException.FAIL_DESC+"超送分发失败");
+							exception.setDesc(ServiceException.FAIL_DESC+"抄送分发失败");
+							log.add("抄送分发失败");
 						}
 					}
 					//发送流程
+					log.add("开始进入流程");
 					dataProcess(vo,userinfo,sddispenseArray,dispatchflwtype,pk_prodef);
 				}else {
 					exception.setCode(ServiceException.FAIL_CODE);
 					exception.setDesc(ServiceException.FAIL_DESC+"人员信息获取失败");
+					log.add("人员信息获取失败");
 				}
 			}
 		}else {//
 			exception.setCode(ServiceException.FAIL_CODE);
 			exception.setDesc(ServiceException.FAIL_DESC_CONN_TYPE);
+			log.add(request.getMethod()+"请求无法实现，请采用POST请求");
 		}
 		//返回json信息
 		String result = toJson(exception).toString();
 		response.getWriter().write(result);
+		log.add("发文单提交接口调用完成");
+		FileKit.addTask(log, "", "");
 	}
 	// TODO 发送流程
 	public void dataProcess(SendDocVO vo,FWUserInfoDto userinfo,SDDispenseVO[] sddispenseArray,String dispatchflwtype,String pk_prodef) {
@@ -340,21 +362,23 @@ public class FWOaodSenddocServer implements IHttpServletAdaptor {
 
 		try {
 			new WfmCoreCmd(wfmParams).execute();
+			log.add("流程插入成功");
 		}catch (Exception e){
 			e.printStackTrace();
 			exception.setCode(ServiceException.FAIL_CODE);
 			if (e.getMessage() == null||e.getMessage().equals("")){
 				exception.setDesc(ServiceException.FAIL_DESC+":流程插入失败");
+				log.add("流程插入失败");
 			}else{
 				exception.setDesc(e.getMessage());
+				log.add("流程插入失败："+e.getMessage());
 			}
 
 		}
-		System.out.println("end");
 	}
 	//
 	private FileItem createFileItem(String filePath)
-    {
+    {   log.add("生成默认send.docx文件");
         FileItemFactory factory = new DiskFileItemFactory(16, null);
         String textFieldName = "send";
         int num = filePath.lastIndexOf(".");
@@ -379,8 +403,9 @@ public class FWOaodSenddocServer implements IHttpServletAdaptor {
         catch (IOException e)
         {
         	e.printStackTrace();
+        	log.add("文件生成失败");
         }
-
+        log.add("文件生成成功");
         return item;
 
     }

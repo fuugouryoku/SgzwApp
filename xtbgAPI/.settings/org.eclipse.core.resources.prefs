@@ -1,13 +1,15 @@
 eclipse.preferences.version=1
 encoding//sgzw/src/public/nc/impl/oa/oaod/officialdoctype/OfficialDocTypeServiceImpl.java=GBK
-encoding//sgzw/src/public/nc/sgzw/uap/org/dto/FWOrgOrgsDto.java=GBK
+encoding//sgzw/src/public/nc/sgzw/uap/org/dto/FWOrgOrgsDto.java=UTF-8
 encoding//sgzw/src/public/nc/sgzw/uap/org/exception/ServiceException.java=GBK
 encoding//sgzw/src/public/nc/sgzw/uap/org/impl/FWCreateFWDaoImpl.java=GBK
 encoding//sgzw/src/public/nc/sgzw/uap/org/impl/FWOrgOrgsDaoImpl.java=GBK
+encoding//sgzw/src/public/nc/sgzw/uap/org/impl/FWSearchOrgOrgsDaoImpl.java=GBK
 encoding//sgzw/src/public/nc/sgzw/uap/org/impl/GWCreateGWDaoImpl.java=UTF-8
 encoding//sgzw/src/public/nc/sgzw/uap/org/server/FWCreateFWServer.java=GBK
 encoding//sgzw/src/public/nc/sgzw/uap/org/server/FWDeleteFileServer.java=GBK
 encoding//sgzw/src/public/nc/sgzw/uap/org/server/FWOaodSenddocServer.java=GBK
 encoding//sgzw/src/public/nc/sgzw/uap/org/server/FWOrgOrgsServer.java=GBK
+encoding//sgzw/src/public/nc/sgzw/uap/org/server/FWSearchOrgOrgsServer.java=GBK
 encoding//sgzw/src/public/nc/sgzw/uap/org/util/IdGenertor.java=GBK
 encoding/<project>=UTF-8

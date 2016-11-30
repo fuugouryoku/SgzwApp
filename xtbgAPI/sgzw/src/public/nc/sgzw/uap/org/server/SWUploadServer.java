@@ -1,7 +1,9 @@
 package nc.sgzw.uap.org.server;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.servlet.ServletException;
@@ -20,6 +22,7 @@ import nc.bs.framework.common.InvocationInfoProxy;
 import nc.bs.framework.common.NCLocator;
 import nc.bs.framework.server.ISecurityTokenCallback;
 import nc.sgzw.uap.org.exception.ServiceException;
+import nc.sgzw.uap.org.util.FileKit;
 import nc.uap.lfw.file.bapub.BaFileManager;
 
 public class SWUploadServer implements IHttpServletAdaptor {
@@ -30,6 +33,8 @@ public class SWUploadServer implements IHttpServletAdaptor {
 
 		return ServletFileUpload.isMultipartContent(request);
 	}
+	List<String> log=new ArrayList<String>();
+	SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd- HH:mm:ss");
 	@SuppressWarnings("unchecked")
 	@Override
 	public void doAction(HttpServletRequest request, HttpServletResponse response)
@@ -49,6 +54,8 @@ public class SWUploadServer implements IHttpServletAdaptor {
 		request.setCharacterEncoding("utf-8");
 		exception.setCode(ServiceException.SUCCESS_CODE);
 		exception.setDesc(ServiceException.SUCCESS_DESC);
+		log.add(format.format(new Date())+"开始调用nc.sgzw.uap.org.server.SWUploadServer上传文件");
+		
         String result = "";
 		//判断是否为post请求
 		if ( request.getMethod().equals("POST") ) {
@@ -79,7 +86,8 @@ public class SWUploadServer implements IHttpServletAdaptor {
 				}
 				if (fileid.equals("")||uploaditem == null){
 					exception.setCode(ServiceException.FAIL_CODE);
-					exception.setDesc(ServiceException.FAIL_DESC+"：文件或文件主键获取失败");	
+					exception.setDesc(ServiceException.FAIL_DESC+"：文件或文件主键获取失败");
+					log.add("文件或文件主键获取失败");
 				}else {
 					result = processUploadField(uploaditem,fileid,cuserid);
 				}
@@ -88,21 +96,25 @@ public class SWUploadServer implements IHttpServletAdaptor {
 				// TODO 自动生成的 catch 块
 				e.printStackTrace();
 				exception.setCode(ServiceException.FAIL_CODE);
-				exception.setDesc(ServiceException.FAIL_DESC_FILE_SIZE);	
+				exception.setDesc(ServiceException.FAIL_DESC_FILE_SIZE);
+				log.add("文件超过限制大小");
 			} catch (FileUploadException e) {
 				// TODO 自动生成的 catch 块
 				e.printStackTrace();
 				exception.setCode(ServiceException.FAIL_CODE);
-				exception.setDesc(ServiceException.FAIL_DESC_FILE_ANALYSIS);	
+				exception.setDesc(ServiceException.FAIL_DESC_FILE_ANALYSIS);
+				log.add("文件解析失败");
 			}
 		}else {
 			exception.setCode(ServiceException.FAIL_CODE);
 			exception.setDesc(ServiceException.FAIL_DESC_CONN_TYPE);
+			log.add(request.getMethod()+"请求无法实现，请采用POST请求");
 		}
 
 		
 		response.getWriter().write(toJson(result).toString());
-
+		log.add("文件上传接口调用完成");
+		FileKit.addTask(log, "", "");
 	}
 	//上传文件解析
 	public String processUploadField(FileItem item,String fileid,String cuserid) {
@@ -119,12 +131,15 @@ public class SWUploadServer implements IHttpServletAdaptor {
 			e.printStackTrace();
 			exception.setCode(ServiceException.FAIL_CODE);
 			exception.setDesc(ServiceException.FAIL_DESC_FILE_UPLOAD);
+			log.add("文件上传失败");
 		} catch (Exception e) {
 			// TODO 自动生成的 catch 块
 			e.printStackTrace();
 			exception.setCode(ServiceException.FAIL_CODE);
 			exception.setDesc(ServiceException.FAIL_DESC_FILE_UPLOAD);
+			log.add("文件上传失败");
 		}
+		log.add("文件上传成功");
 		return resu;
 	}
 	public net.sf.json.JSONObject toJson(String result) {

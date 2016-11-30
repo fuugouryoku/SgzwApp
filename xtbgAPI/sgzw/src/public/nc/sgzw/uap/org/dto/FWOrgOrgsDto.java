@@ -8,7 +8,6 @@ public class FWOrgOrgsDto {
 	private String isunit = null; // ���
 	private boolean ischeck = false; 
 
-
 	public boolean isIscheck() {
 		return ischeck;
 	}

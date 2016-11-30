@@ -30,9 +30,14 @@ public class SWCreateSWDaoImpl {
 		exception.setDesc(ServiceException.SUCCESS_DESC);
 		SWCreateSWDto createFWdto = new SWCreateSWDto();
 		SWUserInfoDto curr = getCuser(userid);
+		if (curr != null){
 		createFWdto.setCreateSWUSERdto(curr);
 		createFWdto.setSWLXData(getSWLX(curr.getCuserid()));
 		createFWdto.setLWDWData(getlwdwdata(userid));
+		}else{
+			exception.setCode(ServiceException.FAIL_CODE);
+			exception.setDesc(ServiceException.FAIL_DESC_USER_FIND);
+		}
 		return createFWdto;
 	}
 	
@@ -47,14 +52,13 @@ public class SWCreateSWDaoImpl {
 	public SWUserInfoDto getCuser(String userid) {
 		SWUserInfoDto curruser = new SWUserInfoDto();
 		SqlBuffer sql = new SqlBuffer();
-		sql.append("select cp.cuserid ,bp.name,bp.pk_group,bp.pk_org from cp_user cp  ");
+		sql.append("select cp.cuserid ,bp.name,bp.pk_group,bp.pk_org,cp.user_code from cp_user cp  ");
 		sql.append("left join bd_psndoc bp on bp.pk_psndoc = cp.pk_base_doc  ");
 		sql.append("where cp.user_code = ? ");
 		SQLParameter pstam=new SQLParameter();
 			try {
 				pstam.addParam(userid);
 				curruser = (SWUserInfoDto)getBaseDAO().executeQuery(sql.toString(),pstam,new  BeanProcessor(SWUserInfoDto.class));
-				curruser.setUser_code(userid);
 			} catch (DAOException e) {
 				e.printStackTrace();
 				exception.setCode(ServiceException.FAIL_CODE);
